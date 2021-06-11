@@ -6,6 +6,7 @@ from .serializers import SongSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import json
 
 
 
@@ -53,8 +54,40 @@ class SongDetails(APIView):
     def delete(self, request, pk):
         song = self.get_song(pk)
         song.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_200_OK)
+
+class SongLike(APIView):
+    
+    def get_song(self, pk):
+        try: 
+            return Song.objects.get(pk=pk)
+        except Song.DoesNotExist:
+            raise Http404
 
 
+    def get(self, request, pk):
+        song = self.get_song(pk)
+        serializer = SongSerializer(song)
+        return Response(serializer.data['artist'])
        
-        
+
+
+    def put(self, request, pk):
+        song = self.get_song(pk)
+        serializer = SongSerializer(song, data=request.data)
+    
+
+        if serializer.is_valid():
+            # payload = json.dumps({
+            #     "title": f"{serializer.data['title']}",
+            #     "artist": f"{serializer.data['artist']}",
+            #     "album": f"{serializer.data['album']}",
+            #     "release_date": f"{serializer.data['release_date']}",
+            #     "likes": serializer.data['likes'] + 1 
+            #     })
+            # serializer.data = payload
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+      
