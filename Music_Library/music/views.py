@@ -74,20 +74,14 @@ class SongLike(APIView):
 
     def put(self, request, pk):
         song = self.get_song(pk)
-        serializer = SongSerializer(song, data=request.data)
-    
+        # song.data['likes'] += 1
+        song.likes += 1
+        song.save()
+        serializer = SongSerializer(song)
+        
+        
+        return Response(serializer.data,status=status.HTTP_200_OK)
+       
 
-        if serializer.is_valid():
-            # payload = json.dumps({
-            #     "title": f"{serializer.data['title']}",
-            #     "artist": f"{serializer.data['artist']}",
-            #     "album": f"{serializer.data['album']}",
-            #     "release_date": f"{serializer.data['release_date']}",
-            #     "likes": serializer.data['likes'] + 1 
-            #     })
-            # serializer.data = payload
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
       
